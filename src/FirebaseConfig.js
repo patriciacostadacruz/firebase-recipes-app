@@ -1,4 +1,5 @@
-import firebase from "firebase/compat/app";
+import Firebase from "firebase/compat/app";
+import "firebase/compat/auth";
 
 const config = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -10,8 +11,8 @@ const config = {
   measurementId: process.env.REACT_APP_MEASUREMENT_ID,
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(config);
+if (!Firebase.apps.length) {
+  Firebase.initializeApp(config);
 }
 
-export default firebase;
+export default Firebase;
