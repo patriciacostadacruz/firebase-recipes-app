@@ -34,12 +34,24 @@ const LoginForm = ({ existingUser }) => {
     }
   };
 
+  const handleLoginWithGoogle = async () => {
+    try {
+      await firebaseAuthService.loginWithGoogle();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   return (
     <div className="login-form-container">
       {existingUser ? (
         <div className="row">
           <h3>Welcome, {existingUser.email}</h3>
-          <button className="primary-button" onClick={handleLogout}>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={handleLogout}
+          >
             Log out
           </button>
         </div>
@@ -70,8 +82,16 @@ const LoginForm = ({ existingUser }) => {
             <button
               onClick={handleSendPasswordResetEmail}
               className="primary-button"
+              type="button"
             >
               Reset password
+            </button>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={handleLoginWithGoogle}
+            >
+              Login with Google
             </button>
           </div>
         </form>
