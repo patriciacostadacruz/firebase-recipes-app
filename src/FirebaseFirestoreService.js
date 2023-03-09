@@ -1,13 +1,13 @@
 import Firebase from "./FirebaseConfig";
 
-const Firestore = Firebase.firestore();
+const firestore = Firebase.firestore();
 
 const createDocument = (collection, document) => {
-  return Firestore.collection(collection).add(document);
+  return firestore.collection(collection).add(document);
 };
 
 const readDocuments = ({ collection, queries }) => {
-  let collectionRef = Firestore.collection(collection);
+  let collectionRef = firestore.collection(collection);
   if (queries && queries.length > 0) {
     for (const query of queries) {
       collectionRef = collectionRef.where(
@@ -20,9 +20,14 @@ const readDocuments = ({ collection, queries }) => {
   return collectionRef.get();
 };
 
+const updateDocument = (collection, id, document) => {
+  return firestore.collection(collection).doc(id).update(document);
+};
+
 const firebaseFirestoreService = {
   createDocument,
   readDocuments,
+  updateDocument,
 };
 
 export default firebaseFirestoreService;

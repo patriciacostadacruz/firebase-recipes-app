@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+// eslint-disable-next-line no-unused-vars
+import { useState, useEffect, useRef, startTransition } from "react";
 import firebaseAuthService from "./FirebaseAuthService";
 import LoginForm from "./components/LoginForm";
 import firebaseFirestoreService from "./FirebaseFirestoreService";
@@ -10,6 +11,8 @@ import "./App.css";
 
 function App() {
   const [user, setUser] = useState(null);
+  // recipe to be edited
+  const [currentRecipe, setCurrentRecipe] = useState(null);
   const [recipes, setRecipes] = useState([]);
 
   useEffect(() => {
@@ -29,6 +32,7 @@ function App() {
   const fetchRecipes = async () => {
     const queries = [];
     if (!user) {
+      // only pulls published recipes for non logged in users
       queries.push({
         field: "isPublished",
         condition: "==",
@@ -43,7 +47,9 @@ function App() {
       });
       const newRecipes = response.docs.map((recipeDoc) => {
         const id = recipeDoc.id;
+        // retrieving data from the recipe document
         const data = recipeDoc.data();
+        // changing date to a readable format
         data.publishDate = new Date(data.publishDate.seconds * 1000);
         return { ...data, id };
       });
@@ -76,6 +82,45 @@ function App() {
     } catch (error) {
       alert(error.message);
     }
+  };
+
+  const handleUpdateRecipe = async (newRecipe, recipeId) => {
+    try {
+      await firebaseFirestoreService.updateDocument(
+        "recipes",
+        recipeId,
+        newRecipe
+      );
+      handleFetchRecipes();
+      alert(`Successfully updated a recipe with ID ${recipeId}`);
+      setCurrentRecipe(null);
+    } catch (error) {
+      alert(error.message);
+      throw error;
+    }
+  };
+
+  const handleEditRecipeClick = async (recipeId) => {
+    // finds the recipe we are editing
+    const fetchedRecipes = await fetchRecipes();
+    const selectedRecipe = fetchedRecipes.find((recipe) => {
+      console.log(`recipeid: ${recipeId} recipe.id: ${recipe.id}`);
+      return recipe.id === recipeId;
+    });
+    // if there is a recipe we are editing, assigns it to its state
+    if (selectedRecipe) {
+      // need to be wrapped inside this hook otherwise the scroll doesn't work - from React 18 and on
+      startTransition(() => {
+        setCurrentRecipe(selectedRecipe);
+      });
+      // window.scrollTo(0, document.body.scrollHeight);
+      const recipeCard = document.getElementById("edit-scroll-to");
+      recipeCard.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleEditRecipeCancel = () => {
+    setCurrentRecipe(null);
   };
 
   const lookupCategoryLabel = (categoryKey) => {
@@ -122,6 +167,15 @@ function App() {
                       <div className="recipe-field">
                         Publish date: {formatDate(recipe.publishDate)}
                       </div>
+                      {user ? (
+                        <button
+                          type="button"
+                          onClick={() => handleEditRecipeClick(recipe.id)}
+                          className="primary-button edit-button"
+                        >
+                          Edit
+                        </button>
+                      ) : null}
                     </div>
                   );
                 })}
@@ -129,7 +183,16 @@ function App() {
             ) : null}
           </div>
         </div>
-        {user ? <AddEditRecipeForm handleAddRecipe={handleAddRecipe} /> : null}
+        <div id="edit-scroll-to">
+          {user ? (
+            <AddEditRecipeForm
+              existingRecipe={currentRecipe}
+              handleAddRecipe={handleAddRecipe}
+              handleUpdateRecipe={handleUpdateRecipe}
+              handleEditRecipeCancel={handleEditRecipeCancel}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   );
