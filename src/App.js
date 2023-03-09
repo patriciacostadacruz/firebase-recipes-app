@@ -67,6 +67,26 @@ function App() {
     }
   };
 
+  const lookupCategoryLabel = (categoryKey) => {
+    const categories = {
+      breadsSandwichesAndPizzas: "Breads, sandwiches and pizzas",
+      eggsAndBreakfast: "Eggs and breakfast",
+      desertsAndBakedGoods: "Deserts and baked goods",
+      fishAndSeafood: "Fish and seafood",
+      vegetables: "Vegetables",
+    };
+    const label = categories[categoryKey];
+    return label;
+  };
+
+  const formatDate = (date) => {
+    const day = date.getUTCDate();
+    const month = date.getUTCMonth() + 1;
+    const year = date.getFullYear();
+    const dateString = `${month} ${day} ${year}`;
+    return dateString;
+  };
+
   return (
     <div className="App">
       <div className="title-row">
@@ -83,10 +103,10 @@ function App() {
                     <div className="recipe-card" key={recipe.id}>
                       <div className="recipe-name">{recipe.name}</div>
                       <div className="recipe-field">
-                        Category: {recipe.category}
+                        Category: {lookupCategoryLabel(recipe.category)}
                       </div>
                       <div className="recipe-field">
-                        Publish date: {recipe.publishDate.toString()}
+                        Publish date: {formatDate(recipe.publishDate)}
                       </div>
                     </div>
                   );
