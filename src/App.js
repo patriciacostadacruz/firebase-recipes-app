@@ -27,9 +27,20 @@ function App() {
   firebaseAuthService.subscribeToAuthChanges(setUser);
 
   const fetchRecipes = async () => {
+    const queries = [];
+    if (!user) {
+      queries.push({
+        field: "isPublished",
+        condition: "==",
+        value: true,
+      });
+    }
     let fetchedRecipes = [];
     try {
-      const response = await firebaseFirestoreService.readDocuments("recipes");
+      const response = await firebaseFirestoreService.readDocuments({
+        collection: "recipes",
+        queries: queries,
+      });
       const newRecipes = response.docs.map((recipeDoc) => {
         const id = recipeDoc.id;
         const data = recipeDoc.data();
@@ -101,6 +112,9 @@ function App() {
                 {recipes.map((recipe) => {
                   return (
                     <div className="recipe-card" key={recipe.id}>
+                      {recipe.isPublished === false ? (
+                        <div className="unpublished">UNPUBLISHED</div>
+                      ) : null}
                       <div className="recipe-name">{recipe.name}</div>
                       <div className="recipe-field">
                         Category: {lookupCategoryLabel(recipe.category)}
