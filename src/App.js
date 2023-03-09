@@ -24,6 +24,7 @@ function App() {
         console.error(error.message);
         throw error;
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // listens to any change in auth, assigns new value
@@ -137,6 +138,7 @@ function App() {
 
   const formatDate = (date) => {
     const day = date.getUTCDate();
+    // to fix month being one month earlier because of timezones
     const month = date.getUTCMonth() + 1;
     const year = date.getFullYear();
     const dateString = `${month} ${day} ${year}`;
@@ -151,7 +153,7 @@ function App() {
       </div>
       <div className="main">
         <div className="center">
-          <div className="recipe-list-box">
+          <div className="recipe-list-box" id="edit-scroll-to">
             {recipes && recipes.length > 0 ? (
               <div className="recipe-list">
                 {recipes.map((recipe) => {
@@ -183,7 +185,7 @@ function App() {
             ) : null}
           </div>
         </div>
-        <div id="edit-scroll-to">
+        <div>
           {user ? (
             <AddEditRecipeForm
               existingRecipe={currentRecipe}
