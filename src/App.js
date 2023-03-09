@@ -118,7 +118,9 @@ function App() {
   };
 
   const handleEditRecipeCancel = () => {
-    setCurrentRecipe(null);
+    startTransition(() => {
+      setCurrentRecipe(null);
+    });
   };
 
   const lookupCategoryLabel = (categoryKey) => {
