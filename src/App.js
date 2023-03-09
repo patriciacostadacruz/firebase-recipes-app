@@ -104,7 +104,6 @@ function App() {
     // finds the recipe we are editing
     const fetchedRecipes = await fetchRecipes();
     const selectedRecipe = fetchedRecipes.find((recipe) => {
-      console.log(`recipeid: ${recipeId} recipe.id: ${recipe.id}`);
       return recipe.id === recipeId;
     });
     // if there is a recipe we are editing, assigns it to its state
@@ -113,7 +112,6 @@ function App() {
       startTransition(() => {
         setCurrentRecipe(selectedRecipe);
       });
-      // window.scrollTo(0, document.body.scrollHeight);
       const recipeCard = document.getElementById("edit-scroll-to");
       recipeCard.scrollIntoView({ behavior: "smooth" });
     }
@@ -151,7 +149,7 @@ function App() {
       </div>
       <div className="main">
         <div className="center">
-          <div className="recipe-dash-box">
+          <div className="recipe-list-box">
             {recipes && recipes.length > 0 ? (
               <div className="recipe-list">
                 {recipes.map((recipe) => {

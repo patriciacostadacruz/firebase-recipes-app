@@ -1,9 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const AddEdditRecipeForm = ({ handleAddRecipe }) => {
+const AddEditRecipeForm = ({
+  existingRecipe,
+  handleAddRecipe,
+  handleUpdateRecipe,
+  handleEditRecipeCancel,
+}) => {
+  useEffect(() => {
+    if (existingRecipe) {
+      setName(existingRecipe.name);
+      setCategory(existingRecipe.category);
+      setDirections(existingRecipe.directions);
+      setPublishDate(existingRecipe.publishDate.toISOString().split("T")[0]);
+      setIngredients(existingRecipe.ingredients);
+    } else {
+      resetForm();
+    }
+  }, [existingRecipe]);
+
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
-  const [publishDate, setpublishDate] = useState(
+  const [publishDate, setPublishDate] = useState(
     new Date().toISOString().split("T")[0]
   );
   const [directions, setDirections] = useState("");
@@ -25,7 +42,12 @@ const AddEdditRecipeForm = ({ handleAddRecipe }) => {
       isPublished,
       ingredients,
     };
-    handleAddRecipe(newRecipe);
+    if (existingRecipe) {
+      handleUpdateRecipe(newRecipe, existingRecipe.id);
+    } else {
+      handleAddRecipe(newRecipe);
+    }
+    resetForm();
   };
 
   const handleAddIngredient = (e) => {
@@ -42,12 +64,20 @@ const AddEdditRecipeForm = ({ handleAddRecipe }) => {
     setIngredientName("");
   };
 
+  const resetForm = () => {
+    setName("");
+    setCategory("");
+    setPublishDate("");
+    setDirections("");
+    setIngredients([]);
+  };
+
   return (
     <form
       onSubmit={handleRecipeFormSubmit}
       className="add-edit-recipe-form-container"
     >
-      <h2>Add a new recipe</h2>
+      {existingRecipe ? <h2>Update recipe</h2> : <h2>Add a new recipe</h2>}
       <div className="top-form-section">
         <div className="fields">
           <label className="recipe-label input-label">
@@ -95,7 +125,7 @@ const AddEdditRecipeForm = ({ handleAddRecipe }) => {
               type="date"
               required
               value={publishDate}
-              onChange={(e) => setpublishDate(e.target.value)}
+              onChange={(e) => setPublishDate(e.target.value)}
               className="input-text"
             />
           </label>
@@ -159,11 +189,20 @@ const AddEdditRecipeForm = ({ handleAddRecipe }) => {
       </div>
       <div className="action-buttons">
         <button type="submit" className="primary-button action-button">
-          Create recipe
+          {existingRecipe ? "Update recipe" : "Create recipe"}
         </button>
+        {existingRecipe ? (
+          <button
+            className="primary-button action-button"
+            type="button"
+            onClick={handleEditRecipeCancel}
+          >
+            Cancel
+          </button>
+        ) : null}
       </div>
     </form>
   );
 };
 
-export default AddEdditRecipeForm;
+export default AddEditRecipeForm;
