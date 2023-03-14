@@ -5,6 +5,7 @@ const AddEditRecipeForm = ({
   handleAddRecipe,
   handleUpdateRecipe,
   handleEditRecipeCancel,
+  handleDeleteRecipe,
 }) => {
   useEffect(() => {
     if (existingRecipe) {
@@ -192,13 +193,22 @@ const AddEditRecipeForm = ({
           {existingRecipe ? "Update recipe" : "Create recipe"}
         </button>
         {existingRecipe ? (
-          <button
-            className="primary-button action-button"
-            type="button"
-            onClick={handleEditRecipeCancel}
-          >
-            Cancel
-          </button>
+          <>
+            <button
+              className="primary-button action-button"
+              type="button"
+              onClick={handleEditRecipeCancel}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => handleDeleteRecipe(existingRecipe.id)}
+              className="primary-button action-button"
+              type="button"
+            >
+              Delete
+            </button>
+          </>
         ) : null}
       </div>
     </form>

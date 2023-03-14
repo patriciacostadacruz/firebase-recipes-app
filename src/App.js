@@ -14,8 +14,13 @@ function App() {
   // recipe to be edited
   const [currentRecipe, setCurrentRecipe] = useState(null);
   const [recipes, setRecipes] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // listens to any change in auth, assigns new value
+  firebaseAuthService.subscribeToAuthChanges(setUser);
 
   useEffect(() => {
+    setIsLoading(true);
     fetchRecipes()
       .then((fetchedRecipes) => {
         setRecipes(fetchedRecipes);
@@ -23,12 +28,12 @@ function App() {
       .catch((error) => {
         console.error(error.message);
         throw error;
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
-
-  // listens to any change in auth, assigns new value
-  firebaseAuthService.subscribeToAuthChanges(setUser);
 
   const fetchRecipes = async () => {
     const queries = [];
@@ -101,6 +106,24 @@ function App() {
     }
   };
 
+  const handleDeleteRecipe = async (recipeId) => {
+    const deleteConfirmation = window.confirm(
+      "Are you sure you want to delete this recipe? Ok for Yes, cancel for No."
+    );
+    if (deleteConfirmation) {
+      try {
+        await firebaseFirestoreService.deleteDocument("recipes", recipeId);
+        handleFetchRecipes();
+        setCurrentRecipe(null);
+        window.scrollTo(0, 0);
+        alert(`Successfully deleted recipe with ID ${recipeId}`);
+      } catch (error) {
+        alert(error.message);
+        throw error;
+      }
+    }
+  };
+
   const handleEditRecipeClick = async (recipeId) => {
     // finds the recipe we are editing
     const fetchedRecipes = await fetchRecipes();
@@ -154,7 +177,21 @@ function App() {
       <div className="main">
         <div className="center">
           <div className="recipe-list-box" id="edit-scroll-to">
-            {recipes && recipes.length > 0 ? (
+            {isLoading ? (
+              <div className="fire">
+                <div className="flames">
+                  <div className="flame"></div>
+                  <div className="flame"></div>
+                  <div className="flame"></div>
+                  <div className="flame"></div>
+                </div>
+                <div className="logs"></div>
+              </div>
+            ) : null}
+            {!isLoading && recipes && recipes.length === 0 ? (
+              <h5 className="no-recipes">No recipes found.</h5>
+            ) : null}
+            {!isLoading && recipes && recipes.length > 0 ? (
               <div className="recipe-list">
                 {recipes.map((recipe) => {
                   return (
@@ -191,6 +228,7 @@ function App() {
               existingRecipe={currentRecipe}
               handleAddRecipe={handleAddRecipe}
               handleUpdateRecipe={handleUpdateRecipe}
+              handleDeleteRecipe={handleDeleteRecipe}
               handleEditRecipeCancel={handleEditRecipeCancel}
             />
           ) : null}
